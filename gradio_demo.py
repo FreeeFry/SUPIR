@@ -21,6 +21,7 @@ from omegaconf import OmegaConf
 from SUPIR.models.SUPIR_model import SUPIRModel
 from SUPIR.util import HWC3, upscale_image, fix_resize, convert_dtype
 from SUPIR.util import create_SUPIR_model
+from SUPIR.utils import shared
 from SUPIR.utils.compare import create_comparison_video
 from SUPIR.utils.face_restoration_helper import FaceRestoreHelper
 from SUPIR.utils.model_fetch import get_model
@@ -35,6 +36,8 @@ parser.add_argument("--no_llava", action='store_true', default=False)
 parser.add_argument("--use_image_slider", action='store_true', default=False)
 parser.add_argument("--log_history", action='store_true', default=False)
 parser.add_argument("--loading_half_params", action='store_true', default=False)
+parser.add_argument("--fp8", action='store_true', default=False, help="Enable loading model parameters in FP8 precision to reduce memory usage.")
+parser.add_argument("--fast_load_sd", action='store_true', default=False, help="Enable fast loading of model state dict and to prevents unnecessary memory allocation.")
 parser.add_argument("--use_tile_vae", action='store_true', default=False)
 parser.add_argument("--encoder_tile_size", type=int, default=512)
 parser.add_argument("--decoder_tile_size", type=int, default=64)
@@ -67,6 +70,13 @@ elif torch.cuda.device_count() == 1:
     LLaVA_device = 'cuda:0'
 else:
     raise ValueError('Currently support CUDA only.')
+
+shared.opts.half_mode = args.loading_half_params  
+# shared.opts.fast_load_sd = args.fast_load_sd
+
+if args.fp8:
+    shared.opts.half_mode = args.fp8
+    shared.opts.fp8_storage = args.fp8
 
 face_helper = None
 model: SUPIRModel = None
