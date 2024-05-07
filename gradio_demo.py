@@ -71,8 +71,10 @@ elif torch.cuda.device_count() == 1:
 else:
     raise ValueError('Currently support CUDA only.')
 
+shared.opts.decoder_tile_size = args.decoder_tile_size
+shared.opts.encoder_tile_size = args.encoder_tile_size
 shared.opts.half_mode = args.loading_half_params  
-# shared.opts.fast_load_sd = args.fast_load_sd
+shared.opts.fast_load_sd = args.fast_load_sd
 
 if args.fp8:
     shared.opts.half_mode = args.fp8
@@ -157,7 +159,7 @@ def load_model(selected_model, selected_checkpoint, progress=None):
         if args.loading_half_params:
             model = model.half()
         if args.use_tile_vae:
-            model.init_tile_vae(encoder_tile_size=512, decoder_tile_size=64)
+            model.init_tile_vae(encoder_tile_size=shared.opts.encoder_tile_size, decoder_tile_size=shared.opts.decoder_tile_size)
         model.first_stage_model.denoise_encoder_s1 = copy.deepcopy(model.first_stage_model.denoise_encoder)
         model.current_model = 'v0-Q'
 

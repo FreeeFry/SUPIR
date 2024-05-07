@@ -3,6 +3,7 @@ gradio_imageslider
 gradio_client
 ffmpeg_progress_yield
 filetype==1.2.0
+k_diffusion
 Markdown==3.5.2
 numpy==1.26.4
 requests==2.31.0
@@ -37,9 +38,10 @@ webdataset==0.2.86
 fastapi
 diffusers
 facexlib==0.3.0
-torch==2.1.0
+torch==2.3.0
 torchvision
-torchaudio==2.1.0
+#torchaudio==2.2.0
+torchaudio
 xformers
 # Only for windows
 https://huggingface.co/MonsterMMORPG/SECourses/resolve/main/triton-2.1.0-cp310-cp310-win_amd64.whl ; platform_system == "Windows"

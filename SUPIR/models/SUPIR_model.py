@@ -18,7 +18,9 @@ class SUPIRModel(DiffusionEngine):
         self.model.load_control_model(control_model)
         self.first_stage_model.denoise_encoder = copy.deepcopy(self.first_stage_model.encoder)
         self.sampler_config = kwargs['sampler_config']
-
+        self.previous_sampler_config = None  # Store the previous sampler configuration
+        self.sampler = None  # Initialize sampler as None
+        
         assert (ae_dtype in ['fp32', 'fp16', 'bf16']) and (diffusion_dtype in ['fp32', 'fp16', 'bf16'])
         if ae_dtype == 'fp32':
             ae_dtype = torch.float32
@@ -89,6 +91,8 @@ class SUPIRModel(DiffusionEngine):
         """
         assert len(x) == len(p)
         assert color_fix_type in ['Wavelet', 'AdaIn', 'None']
+        
+        sampler_cls = f"sgm.modules.diffusionmodules.sampling.RestoreDPMPP2MSampler"
 
         n = len(x)
         if num_samples > 1:
@@ -101,7 +105,8 @@ class SUPIRModel(DiffusionEngine):
             p_p = self.p_p
         if n_p == 'default':
             n_p = self.n_p
-
+        
+        self.sampler_config.target = sampler_cls
         self.sampler_config.params.num_steps = num_steps
         if use_linear_cfg:
             self.sampler_config.params.guider_config.params.scale_min = cfg_scale
